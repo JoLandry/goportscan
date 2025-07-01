@@ -10,20 +10,8 @@ import (
 )
 
 type ScanResult struct {
-	Port int
-	Open bool
-}
-
-// ConnectToDefaultPort attempts to connect to the given IP on port 80 using TCP.
-// It returns the connection if successful, or nil if the host is unreachable.
-func ConnectToDefaultPort(ip string) net.Conn {
-	conn, err := net.DialTimeout("tcp", ip+":80", 1*time.Second)
-	if err != nil {
-		fmt.Println("Host not reachable on port 80")
-		return nil
-	}
-
-	return conn
+	Port int  `json:"port"`
+	Open bool `json:"open"`
 }
 
 // ScanPortsInRange scans ports in the range [start, end] on the given IP address.
@@ -34,7 +22,7 @@ func ScanPortsInRange(start int, end int, ip string, wg *sync.WaitGroup, results
 	defer wg.Done()
 	for currPort := start; currPort <= end; currPort++ {
 		address := fmt.Sprintf("%s:%d", ip, currPort)
-		conn, err := net.DialTimeout("tcp", address, 1*time.Second)
+		conn, err := net.DialTimeout("tcp", address, 300*time.Millisecond)
 		if err == nil {
 			results <- ScanResult{currPort, true}
 			conn.Close()
@@ -67,12 +55,6 @@ func ScanPortsAndFormatJSON(start int, end int, ip string, outputPath string) er
 		go ScanPortsInRange(from, to, ip, &wg, results)
 	}
 
-	// Close channel when all workers are done
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
-
 	// Collect results
 	allResults := collectResults(results, &wg)
 
@@ -87,6 +69,7 @@ func ScanPortsAndFormatJSON(start int, end int, ip string, outputPath string) er
 // collectResults reads all ScanResult values from the results channel after all workers are done.
 // It returns a slice of ScanResult structs.
 func collectResults(results chan ScanResult, wg *sync.WaitGroup) []ScanResult {
+	// Close channel when all workers are done
 	go func() {
 		wg.Wait()
 		close(results)

@@ -2,31 +2,34 @@ package main
 
 import (
 	"fmt"
+	"os"
+
+	"github.com/JoLandry/goportscan/config"
+	"github.com/JoLandry/goportscan/scanner"
 )
 
 func main() {
 	fmt.Println("Hello World !")
-	fmt.Println("Welcome to goportscanner !")
+	fmt.Println("Welcome to goportscan !")
+	fmt.Println()
 
-	/*
-		// Parse CLI options
-		hostIP := "test"
+	// Parse CLI options
+	options, err := config.ParseOptions()
+	fmt.Println()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
+		config.PrintHelp()
+		os.Exit(1)
+	}
 
-		// Open JSON file for the results
-		file, err := os.Open("ports.json")
-		if err != nil {
-			fmt.Println("An error occured while trying to opne ports.jon file")
-			panic(err)
-		}
-		defer file.Close()
+	// Options
+	start := options.StartPort
+	end := options.EndPort
+	outputPath := options.OutputPath
+	hostIP := options.IP
 
-		// Check if default port is reachable
-		// If not, then no need to go further
-		conn := scanner.ConnectToDefaultPort(hostIP)
-		if conn == nil {
-			return
-		}
+	// Launch the algorithm
+	scanner.ScanPortsAndFormatJSON(start, end, hostIP, outputPath)
 
-		// Launch the algorithm
-	*/
+	fmt.Println("Finished scanning, go take a look at file : " + outputPath)
 }
