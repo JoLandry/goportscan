@@ -30,7 +30,7 @@ You should replace these arguments with the actual values you want to run the pr
 
 ---
 
-## Example output
+## Example output
 
 ```json
 [
@@ -84,6 +84,13 @@ go run main.go -ip <IP> -start <startPort> -end <endPort> -o <output.json>
 ```
 
 ---
+
+## Tests
+
+No tests were written for this project as it is very small, easy and straight forward.
+
+The main reasons why this project was developped was because I was planning to learn more about the Go language, especially about goroutines and channels practically.
+Also, I wanted to make a simple parser in this language manually (instead of using flag package or Cobra) and make my first steps into the net package (and documentation).
 
 ## License
 
